@@ -39,6 +39,16 @@ namespace toolzalo
         Bitmap ThuHoi;
         Bitmap friendFull31;
         Bitmap GuiLaiSau;
+        Bitmap DanhBaMayBtn;
+        Bitmap SearchInput;
+        Bitmap CloseBtn;
+        Bitmap FriendBlock;
+        Bitmap ChoDongY;
+
+
+
+
+
 
         string messenger = "Chào chị! E thấy mình có quan tâm đến phụ kiện làm nails? Shop e chuyên cung cấp nails số lượng lớn sỉ lẻ toàn quốc. C kết bạn với e nhé";
         #endregion
@@ -55,6 +65,15 @@ namespace toolzalo
             ThuHoi = (Bitmap)Bitmap.FromFile("Data//ThuHoi.png");
             friendFull31 = (Bitmap)Bitmap.FromFile("Data//friendFull31.png");
             GuiLaiSau = (Bitmap)Bitmap.FromFile("Data//GuiLaiSau.png");
+            DanhBaMayBtn = (Bitmap)Bitmap.FromFile("Data//DanhBaMayBtn.png");
+            SearchInput = (Bitmap)Bitmap.FromFile("Data//SearchInput.png");
+            SearchInput = (Bitmap)Bitmap.FromFile("Data//SearchInput.png");
+            CloseBtn = (Bitmap)Bitmap.FromFile("Data//CloseBtn.png");
+            FriendBlock = (Bitmap)Bitmap.FromFile("Data//FriendBlock.png");
+            ChoDongY = (Bitmap)Bitmap.FromFile("Data//ChoDongY.png");
+
+
+
         }
         public MainWindow()
         {
@@ -81,11 +100,8 @@ namespace toolzalo
 
             if (AddImagePoint != null)
             {
-                if (isStop)
-                    return;
                 //click ket ban
-                KAutoHelper.ADBHelper.Tap(deviceID, AddImagePoint.Value.X, AddImagePoint.Value.Y);
-                delay(1);
+                KAutoHelper.ADBHelper.Tap(deviceID, AddImagePoint.Value.X, AddImagePoint.Value.Y);          
             }
         }
 
@@ -123,49 +139,71 @@ namespace toolzalo
                     // CLick vào zalo
                     if (isStop)
                         return;
-                    GetScreenPhoto(deviceID, ZALO_LOGO);
-                    //KAutoHelper.ADBHelper.TapByPercent(deviceID, 53.6, 17.6);
+                    //GetScreenPhoto(deviceID, ZALO_LOGO);
+                    KAutoHelper.ADBHelper.TapByPercent(deviceID, 53.6, 17.6);
                     delay(5);
 
                     //Click vào menu danh bạ
                     if (isStop)
                         return;
                     KAutoHelper.ADBHelper.TapByPercent(deviceID, 37.7, 94.9);
-                    delay(1);
 
                     //click vào Danh bạ máy
-                    if (isStop)
-                        return;
-                    KAutoHelper.ADBHelper.TapByPercent(deviceID, 25.6, 25.7);
-                    delay(1);
+                    var screenDanhBaMayBtn = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
+                    var DanhBaMayBtnPoint = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenDanhBaMayBtn, DanhBaMayBtn);
+
+                    while (DanhBaMayBtnPoint == null)
+                    {
+                        var screenDanhBaMayBtn1 = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
+                        DanhBaMayBtnPoint = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenDanhBaMayBtn1, DanhBaMayBtn);
+                    }
+                    KAutoHelper.ADBHelper.Tap(deviceID, DanhBaMayBtnPoint.Value.X, DanhBaMayBtnPoint.Value.Y);
+
+
+                    //Tìm ô search
+                    var screenSearchInput = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
+                    var SearchInputPoint = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenSearchInput, SearchInput);
+                    while (SearchInputPoint == null)
+                    {
+                        var screenDanhBaMayBtn1 = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
+                        SearchInputPoint = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenDanhBaMayBtn1, SearchInput);
+                    }
 
                     //click chưa là bạn
                     KAutoHelper.ADBHelper.TapByPercent(deviceID, 41.6, 28.2);
-                    if (isStop)
-                        return;
 
                     for(int i=0; i < 100; i++)
                     {
                         //lăn chuột
                         KAutoHelper.ADBHelper.Swipe(deviceID, 500, 900, 500, 700,300);
-                        delay(2);
+                        Thread.Sleep(100);
 
                         //click add friend
                         var screen = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
                         var AddImagePoint = KAutoHelper.ImageScanOpenCV.FindOutPoint(screen, ADD_FRIEND_ZALO);
                 
+                        
                         if (AddImagePoint != null)
                         {
 
                             //click btn ket ban
                             KAutoHelper.ADBHelper.Tap(deviceID, AddImagePoint.Value.X, AddImagePoint.Value.Y);
-                            delay(1);
+                            Thread.Sleep(50);
+                            //click show cho dong ý
+                            var screenChoDongY = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
+                            var ChoDongYPoint = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenChoDongY, ChoDongY);
+
+                            while(ChoDongYPoint != null)
+                            {
+                                KAutoHelper.ADBHelper.Swipe(deviceID, 500, 900, 500, 700, 300);
+                                Thread.Sleep(100);
+                            }
+
+                            Thread.Sleep(300);
 
                             var screenNoCantFriendDanhBaMay = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
-                            //check box btn 
-                            var ShowDontSentFriendDanhBaMay = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendDanhBaMay, DontSentFriend);
-
                             //check btn gửi lại sau
+                            var ShowDontSentFriendDanhBaMay = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendDanhBaMay, DontSentFriend);                  
                             var ShowGuiLaiSauFriendDanhBaMay = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendDanhBaMay, GuiLaiSau);
                             
                             if (ShowGuiLaiSauFriendDanhBaMay != null)
@@ -179,7 +217,7 @@ namespace toolzalo
 
                                     //scroll
                                     KAutoHelper.ADBHelper.Swipe(deviceID, 500, 900, 500, 500, 100);
-                                    delay(3);
+                                    delay(1);
                                     //chụp hình
                                     var screenAfterShowDontFreind = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
 
@@ -208,6 +246,7 @@ namespace toolzalo
                         //Hanle nếu như không có nút kết bạn
                         if(AddImagePoint == null)
                         {
+                           
                             while(AddImagePoint == null)
                             {                     
                                 var isScreen = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
@@ -215,53 +254,73 @@ namespace toolzalo
                                 if(isAddFriend == null)
                                 {
                                     KAutoHelper.ADBHelper.Swipe(deviceID, 500, 900, 500, 600, 100);
-                                    delay(2);
+                                    Thread.Sleep(500);
                                 }
                                 else
                                 {
-                                    //click ket ban
-                                    KAutoHelper.ADBHelper.Tap(deviceID, isAddFriend.Value.X, isAddFriend.Value.Y);
-                                    delay(2);
-                                    var screenNoCantFriendDanhBaMayInWhilePart2 = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
-
-                                    var ShowGuiLaiSauFriendDanhBaMayInWhilePart2 = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendDanhBaMayInWhilePart2, GuiLaiSau);
-
-                                    //handle kho click nút kết bạn nhảy qua nút gửi lại sau
-                                    if (ShowGuiLaiSauFriendDanhBaMayInWhilePart2 != null)
+                                //click ket ban
+                                while (isAddFriend != null)
                                     {
-                                        while (ShowGuiLaiSauFriendDanhBaMayInWhilePart2 != null)
+                                        KAutoHelper.ADBHelper.Tap(deviceID, isAddFriend.Value.X, isAddFriend.Value.Y);
+                                        Thread.Sleep(900);
+                                        var screenNoCantFriendDanhBaMayInWhilePart2 = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
+                                        var ShowGuiLaiSauFriendDanhBaMayInWhilePart2 = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendDanhBaMayInWhilePart2, GuiLaiSau);
+                                        //click show cho dong ý
+                                        var ChoDongYPoint1 = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendDanhBaMayInWhilePart2, ChoDongY);
+
+                                        while (ChoDongYPoint1 != null)
                                         {
-                                            //click vào gửi lại sau
-                                            KAutoHelper.ADBHelper.Tap(deviceID, ShowGuiLaiSauFriendDanhBaMayInWhilePart2.Value.X, ShowGuiLaiSauFriendDanhBaMayInWhilePart2.Value.Y);
-                                            delay(1);
-
-                                            //scroll
-                                            KAutoHelper.ADBHelper.Swipe(deviceID, 500, 900, 500, 500, 100);
-                                            delay(2);
-                                            var screenAfterShowDontFreind = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
-                                            AddImagePoint = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenAfterShowDontFreind, ADD_FRIEND_ZALO);
-
-                                            KAutoHelper.ADBHelper.Tap(deviceID, AddImagePoint.Value.X, AddImagePoint.Value.Y);
-
-                                            var screenNoCantFriendDanhBaMayInWhilePart3 = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
-
-                                            var ShowGuiLaiSauFriendDanhBaMayInWhile1 = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendDanhBaMayInWhilePart3, GuiLaiSau);
-
-                                            if (ShowGuiLaiSauFriendDanhBaMayInWhile1 == null)
+                                            KAutoHelper.ADBHelper.Swipe(deviceID, 500, 900, 500, 700, 300);
+                                            Thread.Sleep(100);
+                                            break;
+                                        }
+                                        //handle kho click nút kết bạn nhảy qua nút gửi lại sau
+                                        if (ShowGuiLaiSauFriendDanhBaMayInWhilePart2 != null)
+                                        {
+                                            while (ShowGuiLaiSauFriendDanhBaMayInWhilePart2 != null)
                                             {
-                                                break;
+                                                //click vào gửi lại sau
+                                                KAutoHelper.ADBHelper.Tap(deviceID, ShowGuiLaiSauFriendDanhBaMayInWhilePart2.Value.X, ShowGuiLaiSauFriendDanhBaMayInWhilePart2.Value.Y);
+                                                delay(1);
+
+                                                //scroll
+                                                KAutoHelper.ADBHelper.Swipe(deviceID, 500, 900, 500, 500, 100);
+                                                delay(1);
+                                                var screenAfterShowDontFreind = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
+                                                AddImagePoint = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenAfterShowDontFreind, ADD_FRIEND_ZALO);
+
+                                                KAutoHelper.ADBHelper.Tap(deviceID, AddImagePoint.Value.X, AddImagePoint.Value.Y);
+
+                                                var screenNoCantFriendDanhBaMayInWhilePart3 = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
+
+                                                var ShowGuiLaiSauFriendDanhBaMayInWhile1 = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendDanhBaMayInWhilePart3, GuiLaiSau);
+
+                                                if (ShowGuiLaiSauFriendDanhBaMayInWhile1 == null)
+                                                {
+                                                    break;
+                                                }
                                             }
                                         }
-                                    }
 
-                                    break;
+                                        break;
+                                    }
+                                    break;                                 
                                 }
                                
                             }                          
                         }
 
                         //delay(2);  
-                        KAutoHelper.ADBHelper.TapByPercent(deviceID, 94.3, 23.0);
+                        //click vào nút close
+                        var screenCloseBtn = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
+                        var CloseBtnPoint = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenCloseBtn, CloseBtn);
+
+                        while (CloseBtnPoint == null)
+                        {
+                            var screenCloseBtn1 = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
+                            CloseBtnPoint = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenCloseBtn1, DanhBaMayBtn);
+                        }
+                        KAutoHelper.ADBHelper.Tap(deviceID, CloseBtnPoint.Value.X, CloseBtnPoint.Value.Y);
 
                         //copy text
                         if (isStop)
@@ -271,40 +330,59 @@ namespace toolzalo
                         KAutoHelper.ADBHelper.Key(deviceID, KAutoHelper.ADBKeyEvent.KEYCODE_SPACE);
 
                         //Click để copy text
-                        KAutoHelper.ADBHelper.TapByPercent(deviceID, 24.1, 24.8);
-                        delay(1);
-                        KAutoHelper.ADBHelper.TapByPercent(deviceID, 4.2, 26.0);
-                        delay(1);
+                        KAutoHelper.ADBHelper.TapByPercent(deviceID, 24.1, 24.8);                    
+                        KAutoHelper.ADBHelper.TapByPercent(deviceID, 4.2, 26.0);                 
                         KAutoHelper.ADBHelper.TapByPercent(deviceID, 11.8, 18.6);
-                        delay(1);
-
+                    
                         //add friend final
                         KAutoHelper.ADBHelper.TapByPercent(deviceID, 50.0, 45.3);
-                        delay(2);
+                        Thread.Sleep(300);
                         //check lỗi khi add friend 
                         var screenNoCantFriendError = KAutoHelper.ADBHelper.ScreenShoot(deviceID, false);
-
+                
                         var ShowNoCantFriend5Times = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendError, NoCantFriend5Times);
                         var ShowDontSentFriend = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendError, DontSentFriend);
                         var ShowFullSentFriend = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendError, friendFull31);
+                        var ShowFriendBlockd = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendError, FriendBlock);
 
+                        var btnSearchInput = KAutoHelper.ImageScanOpenCV.FindOutPoint(screenNoCantFriendError, SearchInput);
+
+                        if (btnSearchInput != null)
+                        {
+                            return;
+                        }
                         //Nếu lỗi kết bạn quá 5 người (lỗi 32)
                         if (ShowNoCantFriend5Times != null)
                         {
                             back(deviceID, Back);
+                       
                         }
                         //Nếu lỗi kết bạn không thể gửi (Lỗi 40)
-                        if (ShowDontSentFriend != null)
+                         if (ShowDontSentFriend != null)
                         {
                             //click ra màn hình
                             KAutoHelper.ADBHelper.TapByPercent(deviceID, 60.2, 6.5);
                             back(deviceID, Back);
+                           
                         }
                         //Nếu lỗi kết bạn quá 5 người (Lỗi 31)
                         if (ShowFullSentFriend != null)
                         {
                             back(deviceID, Back);
+
                         }
+                        //Nếu chặn kết bạn  (Lỗi -3)
+                        if (ShowFriendBlockd != null)
+                        {
+                            back(deviceID, Back);
+                        }
+                        //if (ShowNoCantFriend5Times == null && ShowDontSentFriend != null && ShowFullSentFriend != null)
+                        //{
+                        //    back(deviceID, Back);
+                        //}
+                       
+
+
                         //tìm lỗi không thể gửi
                     }
                 });
@@ -321,5 +399,16 @@ namespace toolzalo
                     break;
             }
         }
+
+        //public void delayS(int delay)
+        //{
+        //    while (delay > 0)
+        //    {
+        //        Thread.Sleep(TimeSpan);
+        //        delay--;
+        //        if (isStop)
+        //            break;
+        //    }
+        //}
     }
 }
